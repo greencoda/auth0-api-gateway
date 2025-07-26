@@ -42,7 +42,7 @@ func Test_CallLogger_Handler(t *testing.T) {
 		Convey("Should log requests", func() {
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("test response"))
+				_, _ = w.Write([]byte("test response"))
 			})
 
 			wrappedHandler := callLogger.Handler(testHandler)

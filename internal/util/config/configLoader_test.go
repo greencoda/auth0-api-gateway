@@ -47,11 +47,13 @@ func Test_LoadConfigYAML(t *testing.T) {
 		Convey("With valid YAML file", func() {
 			tmpFile, err := os.CreateTemp("", "test-config-*.yaml")
 			So(err, ShouldBeNil)
-			defer os.Remove(tmpFile.Name())
+			defer func() {
+				_ = os.Remove(tmpFile.Name())
+			}()
 
 			_, err = tmpFile.WriteString(config_valid)
 			So(err, ShouldBeNil)
-			tmpFile.Close()
+			_ = tmpFile.Close()
 
 			configSet, err := config_util.LoadConfigYAML(config_util.ConfigFilename(tmpFile.Name()))
 			So(err, ShouldBeNil)
@@ -78,11 +80,13 @@ func Test_LoadConfigYAML(t *testing.T) {
 			// Create a temporary invalid YAML file
 			tmpFile, err := os.CreateTemp("", "invalid-config-*.yaml")
 			So(err, ShouldBeNil)
-			defer os.Remove(tmpFile.Name())
+			defer func() {
+				_ = os.Remove(tmpFile.Name())
+			}()
 
 			_, err = tmpFile.WriteString(config_invalid)
 			So(err, ShouldBeNil)
-			tmpFile.Close()
+			_ = tmpFile.Close()
 
 			configSet, err := config_util.LoadConfigYAML(config_util.ConfigFilename(tmpFile.Name()))
 			So(err, ShouldNotBeNil)

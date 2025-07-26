@@ -127,7 +127,7 @@ func Test_RateLimit_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -156,7 +156,7 @@ func Test_RateLimit_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -194,7 +194,7 @@ func Test_RateLimit_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -222,7 +222,7 @@ func Test_RateLimit_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -246,7 +246,7 @@ func Test_RateLimit_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(r.Method))
+				_, _ = w.Write([]byte(r.Method))
 			})
 
 			wrappedHandler := handler(testHandler)

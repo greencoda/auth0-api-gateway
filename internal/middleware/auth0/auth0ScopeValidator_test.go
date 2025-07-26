@@ -73,7 +73,7 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -105,7 +105,7 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -139,7 +139,7 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -164,7 +164,7 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -196,7 +196,7 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -229,7 +229,7 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)

@@ -47,7 +47,7 @@ func Test_ReverseProxyFunctionality(t *testing.T) {
 			w.Header().Set("X-Backend-Query", r.URL.RawQuery)
 			w.Header().Set("X-Backend-Host", r.Host)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("backend response"))
+			_, _ = w.Write([]byte("backend response"))
 		}))
 		defer backendServer.Close()
 

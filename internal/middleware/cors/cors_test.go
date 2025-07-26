@@ -27,7 +27,7 @@ func Test_CORS_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("test response"))
+				_, _ = w.Write([]byte("test response"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -55,7 +55,7 @@ func Test_CORS_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("success"))
+				_, _ = w.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -136,7 +136,7 @@ func Test_CORS_Handler(t *testing.T) {
 
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("no cors needed"))
+				_, _ = w.Write([]byte("no cors needed"))
 			})
 
 			wrappedHandler := handler(testHandler)

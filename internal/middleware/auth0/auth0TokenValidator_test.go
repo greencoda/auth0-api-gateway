@@ -60,7 +60,7 @@ func Test_Auth0TokenValidator_Interface(t *testing.T) {
 			Convey("Should return a valid middleware function", func() {
 				testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(http.StatusOK)
-					w.Write([]byte("success"))
+					_, _ = w.Write([]byte("success"))
 				})
 
 				wrappedHandler := handler(testHandler)
