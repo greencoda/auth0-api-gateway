@@ -1,0 +1,3 @@
+auth0:
+  audience: https://test-api.example.com
+  domain: test-tenant.auth0.com

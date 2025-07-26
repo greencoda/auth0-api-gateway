@@ -1,0 +1,3 @@
+name: "no-prefix-service"
+port: 4000
+debug: false

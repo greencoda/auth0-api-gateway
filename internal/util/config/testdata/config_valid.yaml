@@ -1,0 +1,4 @@
+test:
+  name: "test-service"
+  port: 9090
+  debug: true

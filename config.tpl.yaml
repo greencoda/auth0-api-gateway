@@ -1,0 +1,45 @@
+auth0:
+  audience: "https://your-api.example.com"
+  domain: "your-auth0-domain.auth0.com"
+server:
+  address: ":80"
+  readTimeout: "15s"
+  writeTimeout: "15s"
+  idleTimeout: "15s"
+  maxHeaderBytes: 1048576
+  logCalls: false
+  releaseStage: "local"
+  logLevel: "info"
+subrouters:
+  - target_url: http://0.0.0.0:4196/private
+    prefix: "/private"
+    strip_prefix: true
+    name: Private endpoint
+    authorization_config:
+      required_scopes:
+      - access:private
+    auth: true
+    gzip: true
+    cors:
+      allow_credentials: true
+      allowed_origins:
+      - "*"
+      allowed_headers:
+      - Authorization
+      - Content-Type
+  - target_url: http://0.0.0.0:4196/public
+    prefix: "/public"
+    strip_prefix: true
+    name: Public endpoint
+    authorization_config:
+      required_scopes:
+      - access:public
+    auth: true
+    gzip: true
+    cors:
+      allow_credentials: true
+      allowed_origins:
+      - "*"
+      allowed_headers:
+      - Authorization
+      - Content-Type

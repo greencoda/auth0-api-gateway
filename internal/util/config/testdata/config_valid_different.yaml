@@ -1,0 +1,4 @@
+test:
+  moniker: "test-service"
+  station: 9090
+  deinsect: true

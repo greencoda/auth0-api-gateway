@@ -1,0 +1,6 @@
+test:
+  name: "prefixed-service"
+  port: 3000
+  debug: true
+other:
+  name: "other-service"

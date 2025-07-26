@@ -1,0 +1,3 @@
+invalid: yaml: content
+  - missing: proper
+    indentation
