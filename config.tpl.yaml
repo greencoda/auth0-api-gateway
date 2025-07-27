@@ -11,35 +11,35 @@ server:
   releaseStage: "local"
   logLevel: "info"
 subrouters:
-  - target_url: http://0.0.0.0:4196/private
+  - targetUrl: http://0.0.0.0:4196/private
     prefix: "/private"
-    strip_prefix: true
+    stripPrefix: true
     name: Private endpoint
-    authorization_config:
-      required_scopes:
+    authorizationConfig:
+      requiredScopes:
       - access:private
     auth: true
     gzip: true
     cors:
-      allow_credentials: true
-      allowed_origins:
+      allowCredentials: true
+      allowedOrigins:
       - "*"
-      allowed_headers:
+      allowedHeaders:
       - Authorization
       - Content-Type
-  - target_url: http://0.0.0.0:4196/public
+  - targetUrl: http://0.0.0.0:4196/public
     prefix: "/public"
-    strip_prefix: true
+    stripPrefix: true
     name: Public endpoint
-    authorization_config:
-      required_scopes:
+    authorizationConfig:
+      requiredScopes:
       - access:public
     auth: true
     gzip: true
     cors:
-      allow_credentials: true
-      allowed_origins:
+      allowCredentials: true
+      allowedOrigins:
       - "*"
-      allowed_headers:
+      allowedHeaders:
       - Authorization
       - Content-Type

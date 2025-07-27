@@ -30,7 +30,7 @@ type CORSConfig struct {
 
 type SubrouterConfig struct {
 	Name                string               `cfg:"name"`
-	TargetURL           string               `cfg:"targetURL"`
+	TargetURL           string               `cfg:"targetUrl"`
 	Prefix              string               `cfg:"prefix"`
 	StripPrefix         bool                 `cfg:"stripPrefix,default=false"`
 	AuthorizationConfig *AuthorizationConfig `cfg:"authorizationConfig"`

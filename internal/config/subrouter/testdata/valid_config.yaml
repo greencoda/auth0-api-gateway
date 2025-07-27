@@ -1,11 +1,11 @@
 subrouters:
   - name: "Test API"
-    targetURL: "http://localhost:8088"
+    targetUrl: "http://localhost:8088"
     prefix: "/api/v1"
     stripPrefix: true
     gzip: true
   - name: "Another API"
-    targetURL: "http://localhost:9090"
+    targetUrl: "http://localhost:9090"
     prefix: "/api/v2"
     stripPrefix: false
     gzip: false

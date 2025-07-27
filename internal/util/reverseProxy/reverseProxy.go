@@ -1,7 +1,6 @@
 package reverseProxy
 
 import (
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -44,8 +43,6 @@ func joinPathsWithSlash(pathA, pathB string) string {
 }
 
 func joinURLPath(urlA, urlB *url.URL) (path, rawpath string) {
-	log.Printf("%s + %s", urlA.RawPath, urlB.RawPath)
-
 	if urlA.RawPath == "" && urlB.RawPath == "" {
 		return joinPathsWithSlash(urlA.Path, urlB.Path), ""
 	}

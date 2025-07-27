@@ -50,21 +50,21 @@ server:
   logLevel: "info"
 
 subrouters:
-  - target_url: http://localhost:3001/api
+  - targetUrl: http://localhost:3001/api
     prefix: "/api/v1"
-    strip_prefix: true
+    stripPrefix: true
     name: "API Service"
-    authorization_config:
-      required_scopes:
+    authorizationConfig:
+      requiredScopes:
         - "read:api"
         - "write:api"
     auth: true
     gzip: true
     cors:
-      allow_credentials: true
-      allowed_origins:
+      allowCredentials: true
+      allowedOrigins:
         - "https://yourdomain.com"
-      allowed_headers:
+      allowedHeaders:
         - "Authorization"
         - "Content-Type"
 ```
@@ -136,34 +136,34 @@ Each subrouter defines a route to a backend service:
 
 ```yaml
 subrouters:
-  - target_url: http://backend-service:3000    # Backend service URL
+  - targetUrl: http://backend-service:3000    # Backend service URL
     prefix: "/api/users"                       # Route prefix
-    strip_prefix: true                         # Remove prefix before forwarding
+    stripPrefix: true                         # Remove prefix before forwarding
     name: "User Service"                       # Descriptive name
-    authorization_config:
-      required_scopes:                         # Required Auth0 scopes
+    authorizationConfig:
+      requiredScopes:                         # Required Auth0 scopes
         - "read:users"
         - "write:users"
     auth: true                                 # Enable authentication
     gzip: true                                 # Enable gzip compression
-    rate_limit:                                # Optional rate limiting
+    rateLimit:                                # Optional rate limiting
       period: "1m"
       limit: 100
     cors:                                      # CORS configuration
-      allow_credentials: true
-      allowed_origins:
+      allowCredentials: true
+      allowedOrigins:
         - "https://yourdomain.com"
         - "https://admin.yourdomain.com"
-      allowed_headers:
+      allowedHeaders:
         - "Authorization"
         - "Content-Type"
         - "X-Requested-With"
-      allowed_methods:
+      allowedMethods:
         - "GET"
         - "POST"
         - "PUT"
         - "DELETE"
-      max_age: 86400
+      maxAge: 86400
 ```
 
 ## Architecture
@@ -317,12 +317,12 @@ Route all `/api/*` requests to a backend service with Auth0 authentication:
 
 ```yaml
 subrouters:
-  - target_url: http://api-backend:3000
+  - targetUrl: http://api-backend:3000
     prefix: "/api"
-    strip_prefix: true
+    stripPrefix: true
     name: "Main API"
-    authorization_config:
-      required_scopes: ["api:access"]
+    authorizationConfig:
+      requiredScopes: ["api:access"]
     auth: true
 ```
 
@@ -332,21 +332,21 @@ Route different prefixes to different services:
 
 ```yaml
 subrouters:
-  - target_url: http://user-service:3001
+  - targetUrl: http://user-service:3001
     prefix: "/users"
     name: "User Service"
-    authorization_config:
-      required_scopes: ["read:users"]
+    authorizationConfig:
+      requiredScopes: ["read:users"]
     auth: true
     
-  - target_url: http://order-service:3002
+  - targetUrl: http://order-service:3002
     prefix: "/orders"
     name: "Order Service"
-    authorization_config:
-      required_scopes: ["read:orders"]
+    authorizationConfig:
+      requiredScopes: ["read:orders"]
     auth: true
     
-  - target_url: http://public-api:3003
+  - targetUrl: http://public-api:3003
     prefix: "/public"
     name: "Public API"
     auth: false  # No authentication required
@@ -356,10 +356,10 @@ subrouters:
 
 ```yaml
 subrouters:
-  - target_url: http://heavy-service:3000
+  - targetUrl: http://heavy-service:3000
     prefix: "/heavy"
     name: "Heavy Processing Service"
-    rate_limit:
+    rateLimit:
       period: "1m"
       limit: 10  # 10 requests per minute
     auth: true
