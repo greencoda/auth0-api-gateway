@@ -40,20 +40,20 @@ func Test_CallLogger_Handler(t *testing.T) {
 		callLogger := middleware.NewCallLogger(params)
 
 		Convey("Should log requests", func() {
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("test response"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("test response"))
 			})
 
 			wrappedHandler := callLogger.Handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/test/path", nil)
 			req.RemoteAddr = "192.168.1.1:12345"
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "test response")
+			wrappedHandler.ServeHTTP(responseRecorder, req)
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Body.String(), ShouldEqual, "test response")
 
 			logOutput := buf.String()
 			So(logOutput, ShouldContainSubstring, "/test/path")
@@ -61,8 +61,8 @@ func Test_CallLogger_Handler(t *testing.T) {
 		})
 
 		Convey("Should log different paths", func() {
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
 			})
 
 			wrappedHandler := callLogger.Handler(testHandler)
@@ -80,11 +80,11 @@ func Test_CallLogger_Handler(t *testing.T) {
 
 					req := httptest.NewRequest("GET", "http://example.com"+path, nil)
 					req.RemoteAddr = "127.0.0.1:8080"
-					w := httptest.NewRecorder()
+					responseRecorder := httptest.NewRecorder()
 
-					wrappedHandler.ServeHTTP(w, req)
-					So(w.Code, ShouldEqual, http.StatusOK)
-					So(w.Body.String(), ShouldEqual, "")
+					wrappedHandler.ServeHTTP(responseRecorder, req)
+					So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+					So(responseRecorder.Body.String(), ShouldEqual, "")
 
 					logOutput := buf.String()
 					So(logOutput, ShouldContainSubstring, path)
@@ -94,8 +94,8 @@ func Test_CallLogger_Handler(t *testing.T) {
 		})
 
 		Convey("Should handle different HTTP methods", func() {
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
 			})
 
 			wrappedHandler := callLogger.Handler(testHandler)
@@ -114,11 +114,11 @@ func Test_CallLogger_Handler(t *testing.T) {
 
 					req := httptest.NewRequest(method, "http://example.com/test", nil)
 					req.RemoteAddr = "10.0.0.1:9000"
-					w := httptest.NewRecorder()
+					responseRecorder := httptest.NewRecorder()
 
-					wrappedHandler.ServeHTTP(w, req)
-					So(w.Code, ShouldEqual, http.StatusOK)
-					So(w.Body.String(), ShouldEqual, "")
+					wrappedHandler.ServeHTTP(responseRecorder, req)
+					So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+					So(responseRecorder.Body.String(), ShouldEqual, "")
 
 					logOutput := buf.String()
 					So(logOutput, ShouldContainSubstring, "/test")
@@ -128,19 +128,19 @@ func Test_CallLogger_Handler(t *testing.T) {
 		})
 
 		Convey("Should handle requests with query parameters", func() {
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
 			})
 
 			wrappedHandler := callLogger.Handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/api?param=value&other=123", nil)
 			req.RemoteAddr = "192.168.0.100:5555"
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "")
+			wrappedHandler.ServeHTTP(responseRecorder, req)
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Body.String(), ShouldEqual, "")
 
 			logOutput := buf.String()
 			So(logOutput, ShouldContainSubstring, "/api")
@@ -148,19 +148,19 @@ func Test_CallLogger_Handler(t *testing.T) {
 		})
 
 		Convey("Should handle empty RemoteAddr", func() {
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
 			})
 
 			wrappedHandler := callLogger.Handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/test", nil)
 			req.RemoteAddr = ""
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "")
+			wrappedHandler.ServeHTTP(responseRecorder, req)
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Body.String(), ShouldEqual, "")
 
 			logOutput := buf.String()
 			So(logOutput, ShouldContainSubstring, "/test")

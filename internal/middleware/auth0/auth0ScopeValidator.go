@@ -22,32 +22,35 @@ func (a *Auth0ScopeValidator) Handler() mux.MiddlewareFunc {
 }
 
 func buildAuth0ScopeMiddlewareFunc(config subrouter_config.AuthorizationConfig) mux.MiddlewareFunc {
-	return func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			token, ok := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-			if !ok {
-				handleScopeError(w, http.StatusBadRequest, "Cannot access token.")
+	return func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+			token, isValidatedClaim := req.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+			if !isValidatedClaim {
+				handleScopeError(responseWriter, http.StatusBadRequest, "Cannot access token.")
+
 				return
 			}
 
-			customAuth0Claims, ok := token.CustomClaims.(*CustomAuth0Claims)
-			if !ok {
-				handleScopeError(w, http.StatusBadRequest, "Invalid claims in token.")
+			customAuth0Claims, isValidatedClaim := token.CustomClaims.(*CustomAuth0Claims)
+			if !isValidatedClaim {
+				handleScopeError(responseWriter, http.StatusBadRequest, "Invalid claims in token.")
+
 				return
 			}
 
 			if !customAuth0Claims.HasAllScopes(config.RequiredScopes) {
-				handleScopeError(w, http.StatusForbidden, "Insufficient access privileges.")
+				handleScopeError(responseWriter, http.StatusForbidden, "Insufficient access privileges.")
+
 				return
 			}
 
-			h.ServeHTTP(w, r)
+			handler.ServeHTTP(responseWriter, req)
 		})
 	}
 }
 
-func handleScopeError(w http.ResponseWriter, httpStatusCode int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(httpStatusCode)
-	_, _ = w.Write([]byte(`{"message":"` + message + `"}`))
+func handleScopeError(responseWriter http.ResponseWriter, httpStatusCode int, message string) {
+	responseWriter.Header().Set("Content-Type", "application/json")
+	responseWriter.WriteHeader(httpStatusCode)
+	_, _ = responseWriter.Write([]byte(`{"message":"` + message + `"}`))
 }

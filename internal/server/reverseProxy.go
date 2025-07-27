@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -14,10 +16,11 @@ import (
 	cors_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/cors"
 	rateLimit_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/rateLimit"
 	reverseProxy_util "github.com/greencoda/auth0-api-gateway/internal/util/reverseProxy"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.uber.org/fx"
 )
+
+var ErrFailedToCreateReverseProxyHandler = errors.New("failed to create reverse proxy handler")
 
 type IReverseProxyHandler http.Handler
 
@@ -46,7 +49,7 @@ func NewReverseProxyHandler(params ReverseProxyHandlerParams) (IReverseProxyHand
 
 	auth0TokenValidatorMiddleware, err := params.Auth0MiddlewareFactory.NewAuth0TokenValidator(*params.Auth0Config)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to set up Auth0 token validator middleware")
+		return nil, fmt.Errorf("failed to set up Auth0 token validator middleware: %w", err)
 	}
 
 	for _, subrouterConfig := range *params.SubrouterConfigs {
@@ -54,7 +57,7 @@ func NewReverseProxyHandler(params ReverseProxyHandlerParams) (IReverseProxyHand
 
 		targetURL, err := url.Parse(subrouterConfig.TargetURL)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to parse target API URL '%s' of subrouter '%s'", subrouterConfig.TargetURL, subrouterConfig.Name)
+			return nil, fmt.Errorf("failed to parse target API URL '%s' of subrouter '%s': %w", subrouterConfig.TargetURL, subrouterConfig.Name, err)
 		}
 
 		if subrouterConfig.RateLimitConfig != nil {
@@ -73,7 +76,7 @@ func NewReverseProxyHandler(params ReverseProxyHandlerParams) (IReverseProxyHand
 			if len(subrouterConfig.AuthorizationConfig.RequiredScopes) > 0 {
 				auth0ScopeValidatorMiddleware := params.Auth0MiddlewareFactory.NewAuth0ScopeValidator(*subrouterConfig.AuthorizationConfig)
 				if auth0ScopeValidatorMiddleware == nil {
-					return nil, errors.New("failed to create Auth0 scope validator middleware")
+					return nil, ErrFailedToCreateReverseProxyHandler
 				}
 
 				subRouter.Use(auth0ScopeValidatorMiddleware.Handler())

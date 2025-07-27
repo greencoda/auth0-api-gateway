@@ -7,7 +7,6 @@ import (
 	"go.uber.org/fx/fxevent"
 )
 
-// NewFXLogger returns a new fxevent.Logger for the FX lifecycle events
 func NewFXLogger(
 	config *server_config.Config,
 	logger zerolog.Logger,

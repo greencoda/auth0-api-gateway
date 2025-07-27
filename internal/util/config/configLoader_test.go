@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	_ "embed"
 	"os"
 	"testing"
 
@@ -8,8 +9,6 @@ import (
 	"github.com/greencoda/confiq"
 	yaml_loader "github.com/greencoda/confiq/loaders/yaml"
 	. "github.com/smartystreets/goconvey/convey"
-
-	_ "embed"
 )
 
 type testConfig struct {

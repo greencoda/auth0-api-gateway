@@ -7,11 +7,9 @@ import (
 	mock_callLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/callLogger"
 	mock_cors_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/cors"
 	mock_rateLimit_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/rateLimit"
-
 	"github.com/greencoda/auth0-api-gateway/internal/server"
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/rs/zerolog"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func Test_NewServer(t *testing.T) {

@@ -8,22 +8,6 @@ import (
 	"github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
-type IRateLimitFactory interface {
-	NewRateLimit(config subrouter_config.RateLimitConfig) IRateLimit
-}
-
-type RateLimitFactory struct{}
-
-func (r *RateLimitFactory) NewRateLimit(config subrouter_config.RateLimitConfig) IRateLimit {
-	return &RateLimit{
-		middlewareFunc: buildRateLimiterFunc(config),
-	}
-}
-
-func NewRateLimitFactory() IRateLimitFactory {
-	return &RateLimitFactory{}
-}
-
 type IRateLimit interface {
 	Handler() mux.MiddlewareFunc
 }
@@ -37,19 +21,20 @@ func (c *RateLimit) Handler() mux.MiddlewareFunc {
 }
 
 func buildRateLimiterFunc(config subrouter_config.RateLimitConfig) mux.MiddlewareFunc {
-	rate := limiter.Rate{
-		Period: config.Period,
-		Limit:  config.Limit,
-	}
-
-	rateLimiter := limiter.New(
-		memory.NewStore(),
-		rate,
-		limiter.WithTrustForwardHeader(config.TrustForwardHeader),
+	var (
+		limiterStore = memory.NewStore()
+		limiterRate  = limiter.Rate{
+			Period: config.Period,
+			Limit:  config.Limit,
+		}
 	)
 
 	middleware := stdlib.NewMiddleware(
-		rateLimiter,
+		limiter.New(
+			limiterStore,
+			limiterRate,
+			limiter.WithTrustForwardHeader(config.TrustForwardHeader),
+		),
 	)
 
 	return middleware.Handler

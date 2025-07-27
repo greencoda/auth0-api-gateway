@@ -1,0 +1,34 @@
+version: "2"
+run:
+  modules-download-mode: readonly
+linters:
+  default: standard
+  disable: []
+  settings:
+    paralleltest:
+      ignore-missing: true
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - asasalint
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

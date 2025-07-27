@@ -26,10 +26,12 @@ func Launcher(params LauncherParams) {
 					params.Logger.Fatal().Err(err).Msg("Failed to start server")
 				}
 			}()
+
 			return nil
 		},
 		OnStop: func(context.Context) error {
 			params.Logger.Print("Shutting down Auth0 API Gateway")
+
 			return nil
 		},
 	})

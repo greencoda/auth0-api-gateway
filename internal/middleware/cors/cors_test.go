@@ -25,9 +25,9 @@ func Test_CORS_Handler(t *testing.T) {
 			cors := factory.NewCORS(config)
 			handler := cors.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("test response"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("test response"))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -36,11 +36,11 @@ func Test_CORS_Handler(t *testing.T) {
 			req.Header.Set("Origin", "https://example.com")
 			req.Header.Set("Access-Control-Request-Method", "POST")
 			req.Header.Set("Access-Control-Request-Headers", "Authorization")
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
+			wrappedHandler.ServeHTTP(responseRecorder, req)
 
-			So(w.Header().Get("Access-Control-Allow-Origin"), ShouldNotBeEmpty)
+			So(responseRecorder.Header().Get("Access-Control-Allow-Origin"), ShouldNotBeEmpty)
 		})
 
 		Convey("Should handle actual requests", func() {
@@ -53,21 +53,21 @@ func Test_CORS_Handler(t *testing.T) {
 			cors := factory.NewCORS(config)
 			handler := cors.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/api", nil)
 			req.Header.Set("Origin", "https://example.com")
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
+			wrappedHandler.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "success")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Body.String(), ShouldEqual, "success")
 		})
 
 		Convey("Should work with wildcard origins", func() {
@@ -80,19 +80,19 @@ func Test_CORS_Handler(t *testing.T) {
 			cors := factory.NewCORS(config)
 			handler := cors.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
 			})
 
 			wrappedHandler := handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/api", nil)
 			req.Header.Set("Origin", "https://anydomain.com")
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
+			wrappedHandler.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 		})
 
 		Convey("Should handle multiple allowed origins", func() {
@@ -104,8 +104,8 @@ func Test_CORS_Handler(t *testing.T) {
 			cors := factory.NewCORS(config)
 			handler := cors.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -134,20 +134,20 @@ func Test_CORS_Handler(t *testing.T) {
 			cors := factory.NewCORS(config)
 			handler := cors.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("no cors needed"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("no cors needed"))
 			})
 
 			wrappedHandler := handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/api", nil)
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
+			wrappedHandler.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "no cors needed")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Body.String(), ShouldEqual, "no cors needed")
 		})
 	})
 }
