@@ -1,4 +1,4 @@
-package callLogger_test
+package requestLogger_test
 
 import (
 	"bytes"
@@ -6,38 +6,38 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/callLogger"
+	requestLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/requestLogger"
 	"github.com/rs/zerolog"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func Test_NewCallLogger(t *testing.T) {
-	Convey("When creating a new call logger", t, func() {
+func Test_NewMiddleware(t *testing.T) {
+	Convey("When creating a new request logger", t, func() {
 		var buf bytes.Buffer
 		logger := zerolog.New(&buf)
 
 		Convey("With valid logger", func() {
-			params := middleware.CallLoggerParams{
+			params := requestLogger_middleware.RequestLoggerParams{
 				Logger: logger,
 			}
 
-			callLogger := middleware.NewCallLogger(params)
+			callLogger := requestLogger_middleware.NewMiddleware(params)
 			So(callLogger, ShouldNotBeNil)
-			So(callLogger, ShouldImplement, (*middleware.ICallLogger)(nil))
+			So(callLogger, ShouldImplement, (*requestLogger_middleware.IRequestLogger)(nil))
 		})
 	})
 }
 
-func Test_CallLogger_Handler(t *testing.T) {
-	Convey("When using call logger handler", t, func() {
+func Test_RequestLogger_Handler(t *testing.T) {
+	Convey("When using request logger handler", t, func() {
 		var buf bytes.Buffer
 		logger := zerolog.New(&buf)
 
-		params := middleware.CallLoggerParams{
+		params := requestLogger_middleware.RequestLoggerParams{
 			Logger: logger,
 		}
 
-		callLogger := middleware.NewCallLogger(params)
+		callLogger := requestLogger_middleware.NewMiddleware(params)
 
 		Convey("Should log requests", func() {
 			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {

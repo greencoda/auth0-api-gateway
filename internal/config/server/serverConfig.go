@@ -14,7 +14,7 @@ type Config struct {
 	IdleTimeout    time.Duration `cfg:"idleTimeout,default=15s"`
 	MaxHeaderBytes int           `cfg:"maxHeaderBytes,default=1048576"`
 	ReleaseStage   string        `cfg:"releaseStage,default=local"`
-	LogCalls       bool          `cfg:"logCalls,default=false"`
+	LogRequests    bool          `cfg:"logRequests,default=false"`
 	LogLevel       string        `cfg:"logLevel,default=info"`
 }
 

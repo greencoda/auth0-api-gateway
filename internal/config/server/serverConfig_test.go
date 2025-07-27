@@ -22,7 +22,7 @@ func Test_NewConfig(t *testing.T) {
 					IdleTimeout:    60 * time.Second,
 					MaxHeaderBytes: 2097152,
 					ReleaseStage:   "production",
-					LogCalls:       true,
+					LogRequests:    true,
 					LogLevel:       "debug",
 				}
 			)
@@ -48,7 +48,7 @@ func Test_NewConfig(t *testing.T) {
 					IdleTimeout:    15 * time.Second,
 					MaxHeaderBytes: 1048576,
 					ReleaseStage:   "local",
-					LogCalls:       false,
+					LogRequests:    false,
 					LogLevel:       "info",
 				}
 			)
@@ -80,7 +80,7 @@ func Test_NewConfig(t *testing.T) {
 					IdleTimeout:    15 * time.Second,
 					MaxHeaderBytes: 1048576,
 					ReleaseStage:   "local",
-					LogCalls:       false,
+					LogRequests:    false,
 					LogLevel:       "info",
 				}
 			)
@@ -101,7 +101,7 @@ func Test_NewConfig(t *testing.T) {
 					IdleTimeout:    15 * time.Second,
 					MaxHeaderBytes: 1048576,
 					ReleaseStage:   "local",
-					LogCalls:       true,
+					LogRequests:    true,
 					LogLevel:       "info",
 				}
 			)

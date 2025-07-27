@@ -11,7 +11,7 @@ func NewFXLogger(
 	config *server_config.Config,
 	logger zerolog.Logger,
 ) fxevent.Logger {
-	if config.ReleaseStage == "prod" {
+	if config.ReleaseStage != "local" {
 		return fxevent.NopLogger
 	}
 

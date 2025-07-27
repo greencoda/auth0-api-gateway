@@ -1,8 +1,8 @@
-.PHONY: all build clean deps docker-build mock run test
-.SILENT: swag test test-100 test-cover
+.PHONY: all build clean deps lint mock run test test-cover
+.SILENT: run test test-cover
 
 BINARY_NAME=auth0-api-gateway
-TESTABLE_PACKAGES=$(shell go list ./... | grep -v '/mocks/\|/tools/\|/cmd\|/module')
+TESTABLE_PACKAGES=$(shell go list ./... | grep -v '/mocks/\|/cmd\|/module')
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o bin/$(BINARY_NAME) cmd/main.go 
@@ -32,9 +32,6 @@ run:
 
 test:
 	go test ${TESTABLE_PACKAGES} -cover -count=1 -cover -coverprofile=coverage.out
-
-test-100:
-	go test ${TESTABLE_PACKAGES} -cover -count=100
 	
 test-cover:
 	go test ${TESTABLE_PACKAGES} -cover -coverprofile=coverage.out && go tool cover -html=coverage.out

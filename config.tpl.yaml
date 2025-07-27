@@ -7,8 +7,8 @@ server:
   writeTimeout: "15s"
   idleTimeout: "15s"
   maxHeaderBytes: 1048576
-  logCalls: false
   releaseStage: "local"
+  logRequests: false
   logLevel: "info"
 subrouters:
   - targetUrl: http://0.0.0.0:4196/private

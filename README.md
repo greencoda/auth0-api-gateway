@@ -45,8 +45,8 @@ server:
   writeTimeout: "15s"
   idleTimeout: "15s"
   maxHeaderBytes: 1048576
-  logCalls: true
   releaseStage: "development"
+  logRequests: true
   logLevel: "info"
 
 subrouters:
@@ -72,14 +72,22 @@ subrouters:
 ### 2. Run the Gateway
 
 ```bash
-# Using Go directly
+# Using Go directly (default config.yaml)
 go run cmd/main.go
+
+# Using Go with custom config file
+go run cmd/main.go -c /path/to/custom-config.yaml
 
 # Or using Make
 make run
 
 # Or using Docker Hub image (recommended)
 docker run -p 8080:80 -v $(pwd)/config.yaml:/config.yaml greencoda/auth0-api-gateway:latest
+
+# Docker with custom config file
+docker run -p 8080:80 \
+  -v /path/to/custom-config.yaml:/custom.yaml \
+  greencoda/auth0-api-gateway:latest -c /custom.yaml
 
 # Or build locally
 docker build -f docker/Dockerfile -t auth0-api-gateway .
@@ -104,6 +112,45 @@ curl -H "Authorization: Bearer $TOKEN" \
      http://localhost:8080/api/v1/your-endpoint
 ```
 
+## Command Line Options
+
+The gateway supports the following command-line options:
+
+### `-c` Config File Path
+
+Specify a custom configuration file path:
+
+```bash
+# Use default config.yaml
+go run cmd/main.go
+
+# Use custom config file
+go run cmd/main.go -c /path/to/custom-config.yaml
+go run cmd/main.go -c config-production.yaml
+
+# Get help
+go run cmd/main.go -h
+```
+
+This is particularly useful for:
+- **Environment-specific configurations**: Use different config files for development, staging, and production
+- **Testing**: Quickly switch between different configuration setups
+- **Deployment**: Specify config file paths that match your deployment structure
+
+### Docker Usage with Custom Config
+
+```bash
+# Mount and specify custom config file
+docker run -p 8080:80 \
+  -v /host/path/to/custom.yaml:/app/custom.yaml \
+  greencoda/auth0-api-gateway:latest -c /app/custom.yaml
+
+# Using environment-specific configs
+docker run -p 8080:80 \
+  -v ./configs/production.yaml:/config/production.yaml \
+  greencoda/auth0-api-gateway:latest -c /config/production.yaml
+```
+
 ## Configuration
 
 The gateway is configured using a YAML file. Here's a comprehensive example:
@@ -125,9 +172,9 @@ server:
   writeTimeout: "15s"        # Maximum duration for writing responses
   idleTimeout: "15s"         # Maximum duration for idle connections
   maxHeaderBytes: 1048576    # Maximum size of request headers
-  logCalls: true            # Enable request/response logging
   releaseStage: "production" # Environment stage (local, development, staging, production)
-  logLevel: "info"          # Log level (trace, debug, info, warn, error, fatal, panic)
+  logRequests: true             # Enable request/response logging
+  logLevel: "info"           # Log level (trace, debug, info, warn, error, fatal, panic)
 ```
 
 ### Subrouter Configuration
@@ -137,19 +184,19 @@ Each subrouter defines a route to a backend service:
 ```yaml
 subrouters:
   - targetUrl: http://backend-service:3000    # Backend service URL
-    prefix: "/api/users"                       # Route prefix
+    prefix: "/api/users"                      # Route prefix
     stripPrefix: true                         # Remove prefix before forwarding
-    name: "User Service"                       # Descriptive name
+    name: "User Service"                      # Descriptive name
     authorizationConfig:
       requiredScopes:                         # Required Auth0 scopes
         - "read:users"
         - "write:users"
-    auth: true                                 # Enable authentication
-    gzip: true                                 # Enable gzip compression
+    auth: true                                # Enable authentication
+    gzip: true                                # Enable gzip compression
     rateLimit:                                # Optional rate limiting
       period: "1m"
       limit: 100
-    cors:                                      # CORS configuration
+    cors:                                     # CORS configuration
       allowCredentials: true
       allowedOrigins:
         - "https://yourdomain.com"
@@ -258,16 +305,13 @@ The project includes comprehensive tests with mocking:
 # Run all tests
 make test
 
-# Run tests 100 times (for race condition detection)
-make test-100
-
-# Generate coverage report
+# Run all tests and view the coverage report
 make test-cover
 ```
 
 ## Docker
 
-The Docker image is automatically built and published to Docker Hub on every release and push to master.
+The Docker image is automatically built and published to Docker Hub on every release.
 
 ### Using Pre-built Image
 
@@ -279,6 +323,11 @@ docker pull greencoda/auth0-api-gateway:latest
 docker run -p 8080:80 \
   -v $(pwd)/config.yaml:/config.yaml \
   greencoda/auth0-api-gateway:latest
+
+# Run with custom config file path
+docker run -p 8080:80 \
+  -v /path/to/custom-config.yaml:/custom.yaml \
+  greencoda/auth0-api-gateway:latest -c /custom.yaml
 
 # Run with environment-specific config
 docker run -p 8080:80 \
@@ -297,10 +346,15 @@ docker run -p 8080:80 \
 # Build the image locally
 docker build -f docker/Dockerfile -t auth0-api-gateway .
 
-# Run locally built image
+# Run locally built image (default config)
 docker run -p 8080:80 \
   -v $(pwd)/config.yaml:/config.yaml \
   auth0-api-gateway
+
+# Run with custom config file
+docker run -p 8080:80 \
+  -v /path/to/custom.yaml:/custom.yaml \
+  auth0-api-gateway -c /custom.yaml
 ```
 
 ### Available Tags
