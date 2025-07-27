@@ -1,11 +1,11 @@
 # auth0-api-gateway
 
-[![godoc for greencoda/auth0-api-gateway](https://pkg.go.dev/badge/github.com/greencoda/auth0-api-gateway)](https://pkg.go.dev/github.com/greencoda/auth0-api-gateway)
-[![Go](https://img.shields.io/badge/Go-1.24-blue)](https://golang.org/doc/go1.24)
-[![Build Status](https://github.com/greencoda/auth0-api-gateway/actions/workflows/test.yml/badge.svg)](https://github.com/greencoda/auth0-api-gateway/actions/workflows/test.yml)
-[![Go Coverage](https://raw.githack.com/wiki/greencoda/auth0-api-gateway/coverage.html)](https://raw.githack.com/wiki/greencoda/auth0-api-gateway/coverage.html)
-[![Go Report Card](https://goreportcard.com/badge/github.com/greencoda/auth0-api-gateway)](https://goreportcard.com/report/github.com/greencoda/auth0-api-gateway)
-[![Docker Hub](https://img.shields.io/docker/pulls/greencoda/auth0-api-gateway)](https://hub.docker.com/r/greencoda/auth0-api-gateway)
+[![godoc for greencoda/confiq][godoc-badge]][godoc-url]
+[![Go 1.22][goversion-badge]][goversion-url]
+[![Build Status][actions-badge]][actions-url]
+[![Go Coverage][gocoverage-badge]][gocoverage-url]
+[![Go Report card][goreportcard-badge]][goreportcard-url]
+[![Docker Hub][dockerhub-badge]][dockerhub-url]
 
 `auth0-api-gateway` is a configurable reverse proxy API Gateway with Auth0 JWT authentication, built in Go. It provides a flexible way to route requests to multiple backend services while enforcing authentication and authorization policies through Auth0 scopes.
 
@@ -382,3 +382,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For support and questions:
 
 - Create an [issue](https://github.com/greencoda/auth0-api-gateway/issues)
+
+[godoc-badge]: https://pkg.go.dev/badge/github.com/greencoda/auth0-api-gateway
+[godoc-url]: https://pkg.go.dev/github.com/greencoda/auth0-api-gateway
+[actions-badge]: https://github.com/greencoda/auth0-api-gateway/actions/workflows/main.yml/badge.svg
+[actions-url]: https://github.com/greencoda/auth0-api-gateway/actions/workflows/main.yml
+[goversion-badge]: https://img.shields.io/badge/Go-1.24-%2300ADD8?logo=go
+[goversion-url]: https://golang.org/doc/go1.24
+[goreportcard-badge]: https://goreportcard.com/badge/github.com/greencoda/auth0-api-gateway
+[goreportcard-url]: https://goreportcard.com/report/github.com/greencoda/auth0-api-gateway
+[gocoverage-badge]: https://github.com/greencoda/auth0-api-gateway/wiki/coverage.svg
+[gocoverage-url]: https://raw.githack.com/wiki/greencoda/auth0-api-gateway/coverage.html
+[dockerhub-badge]: https://img.shields.io/docker/pulls/greencoda/auth0-api-gateway
+[dockerhub-url]: https://hub.docker.com/r/greencoda/auth0-api-gateway

@@ -58,7 +58,7 @@ jobs:
       run: go mod tidy && git diff-index --quiet HEAD || { >&2 echo "Stale go.{mod,sum} detected. This can be fixed with 'go mod tidy'."; exit 1; }
 
     - name: Run Test
-      run: go test -v -coverprofile=coverage.out ./...
+      run: go test -v -coverprofile=coverage.out $(go list ./... | grep -v '/mocks/\|/tools/\|/cmd\|/module')
 
     - name: Copy coverage.out file to temp
       run: cp coverage.out $RUNNER_TEMP
