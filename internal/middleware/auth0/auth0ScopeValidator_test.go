@@ -71,9 +71,9 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 				RequiredScopes: []string{"read:all", "write:users"},
 			}
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -103,9 +103,9 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -137,9 +137,9 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -162,9 +162,9 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -194,9 +194,9 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)
@@ -227,9 +227,9 @@ func Test_Auth0ScopeValidator_Handler(t *testing.T) {
 
 			validator := auth0ValidatorFactory.NewAuth0ScopeValidator(config)
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	server_config "github.com/greencoda/auth0-api-gateway/internal/config/server"
-
 	"github.com/rs/zerolog"
 	"go.uber.org/fx"
 )

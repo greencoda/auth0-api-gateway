@@ -1,6 +1,7 @@
 package auth0
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"github.com/gorilla/mux"
 	auth0_config "github.com/greencoda/auth0-api-gateway/internal/config/auth0"
-	"github.com/pkg/errors"
 )
 
 const jwtCacheTTL = time.Duration(5 * time.Minute)
@@ -30,7 +30,7 @@ func (a *Auth0TokenValidator) Handler() mux.MiddlewareFunc {
 func buildJWTMiddlewareFunc(config auth0_config.Config) (mux.MiddlewareFunc, error) {
 	issuerURL, err := url.Parse("https://" + config.Domain + "/")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse the issuer url")
+		return nil, fmt.Errorf("failed to parse the issuer url: %w", err)
 	}
 
 	var (
@@ -55,13 +55,13 @@ func buildJWTMiddlewareFunc(config auth0_config.Config) (mux.MiddlewareFunc, err
 		validator.WithAllowedClockSkew(time.Minute),
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to set up the jwt validator")
+		return nil, fmt.Errorf("failed to set up the jwt validator: %w", err)
 	}
 
-	errorHandler := func(w http.ResponseWriter, r *http.Request, err error) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(`{"message":"Failed to validate JWT: ` + err.Error() + `"}`))
+	errorHandler := func(responseWriter http.ResponseWriter, req *http.Request, err error) {
+		responseWriter.Header().Set("Content-Type", "application/json")
+		responseWriter.WriteHeader(http.StatusUnauthorized)
+		_, _ = responseWriter.Write([]byte(`{"message":"Failed to validate JWT: ` + err.Error() + `"}`))
 	}
 
 	return jwtmiddleware.New(

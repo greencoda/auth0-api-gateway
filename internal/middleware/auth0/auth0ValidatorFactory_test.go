@@ -149,9 +149,9 @@ func Test_Auth0Middleware_ComprehensiveCoverage(t *testing.T) {
 			validator := factory.NewAuth0ScopeValidator(config)
 			So(validator, ShouldNotBeNil)
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			middlewareHandler := validator.Handler()(testHandler)

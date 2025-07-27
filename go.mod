@@ -7,7 +7,7 @@ require (
 	github.com/efectn/fx-zerolog v1.1.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
-	github.com/greencoda/confiq v1.3.5
+	github.com/greencoda/confiq v1.3.6
 	github.com/h2non/gock v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.27.0
@@ -20,6 +20,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect

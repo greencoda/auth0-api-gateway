@@ -20,6 +20,9 @@ deps:
 	go mod vendor
 	go mod download -x
 
+lint: deps
+	golangci-lint run -v
+
 mock:
 	rm -rf internal/mocks/*
 	mockery --all --dir=internal --output=internal/mocks --keeptree

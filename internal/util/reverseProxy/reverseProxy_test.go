@@ -42,12 +42,12 @@ func Test_NewReverseProxy(t *testing.T) {
 func Test_ReverseProxyFunctionality(t *testing.T) {
 	Convey("When testing reverse proxy functionality", t, func() {
 		// Create a test backend server
-		backendServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("X-Backend-Path", r.URL.Path)
-			w.Header().Set("X-Backend-Query", r.URL.RawQuery)
-			w.Header().Set("X-Backend-Host", r.Host)
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte("backend response"))
+		backendServer := httptest.NewServer(http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+			responseWriter.Header().Set("X-Backend-Path", req.URL.Path)
+			responseWriter.Header().Set("X-Backend-Query", req.URL.RawQuery)
+			responseWriter.Header().Set("X-Backend-Host", req.Host)
+			responseWriter.WriteHeader(http.StatusOK)
+			_, _ = responseWriter.Write([]byte("backend response"))
 		}))
 		defer backendServer.Close()
 
@@ -58,23 +58,23 @@ func Test_ReverseProxyFunctionality(t *testing.T) {
 
 		Convey("Should proxy basic requests correctly", func() {
 			req := httptest.NewRequest("GET", "http://frontend.com/test", nil)
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxy.ServeHTTP(w, req)
+			proxy.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "backend response")
-			So(w.Header().Get("X-Backend-Path"), ShouldEqual, "/test")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Body.String(), ShouldEqual, "backend response")
+			So(responseRecorder.Header().Get("X-Backend-Path"), ShouldEqual, "/test")
 		})
 
 		Convey("Should handle requests with query parameters", func() {
 			req := httptest.NewRequest("GET", "http://frontend.com/test?param=value", nil)
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxy.ServeHTTP(w, req)
+			proxy.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Header().Get("X-Backend-Query"), ShouldEqual, "param=value")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Header().Get("X-Backend-Query"), ShouldEqual, "param=value")
 		})
 
 		Convey("Should merge query parameters when target has them", func() {
@@ -84,24 +84,24 @@ func Test_ReverseProxyFunctionality(t *testing.T) {
 			proxyWithQuery := reverseProxy.NewReverseProxy(targetWithQuery)
 
 			req := httptest.NewRequest("GET", "http://frontend.com/test?req=param", nil)
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxyWithQuery.ServeHTTP(w, req)
+			proxyWithQuery.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			query := w.Header().Get("X-Backend-Query")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			query := responseRecorder.Header().Get("X-Backend-Query")
 			So(query, ShouldContainSubstring, "target=param")
 			So(query, ShouldContainSubstring, "req=param")
 		})
 
 		Convey("Should handle requests with paths", func() {
 			req := httptest.NewRequest("GET", "http://frontend.com/api/v1/users", nil)
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxy.ServeHTTP(w, req)
+			proxy.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Header().Get("X-Backend-Path"), ShouldEqual, "/api/v1/users")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Header().Get("X-Backend-Path"), ShouldEqual, "/api/v1/users")
 		})
 
 		Convey("Should join target path with request path", func() {
@@ -111,32 +111,32 @@ func Test_ReverseProxyFunctionality(t *testing.T) {
 			proxyWithPath := reverseProxy.NewReverseProxy(targetWithPath)
 
 			req := httptest.NewRequest("GET", "http://frontend.com/endpoint", nil)
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxyWithPath.ServeHTTP(w, req)
+			proxyWithPath.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Header().Get("X-Backend-Path"), ShouldEqual, "/base/endpoint")
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Header().Get("X-Backend-Path"), ShouldEqual, "/base/endpoint")
 		})
 
 		Convey("Should handle User-Agent header correctly", func() {
 			req := httptest.NewRequest("GET", "http://frontend.com/test", nil)
 			// Don't set User-Agent header
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxy.ServeHTTP(w, req)
+			proxy.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 		})
 
 		Convey("Should preserve existing User-Agent header", func() {
 			req := httptest.NewRequest("GET", "http://frontend.com/test", nil)
 			req.Header.Set("User-Agent", "custom-agent")
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			proxy.ServeHTTP(w, req)
+			proxy.ServeHTTP(responseRecorder, req)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
+			So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 		})
 	})
 }
@@ -146,9 +146,9 @@ func Test_PathJoining(t *testing.T) {
 		// Test through the reverse proxy behavior since the helper functions are not exported
 
 		Convey("Should handle root paths correctly", func() {
-			backendServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("X-Backend-Path", r.URL.Path)
-				w.WriteHeader(http.StatusOK)
+			backendServer := httptest.NewServer(http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.Header().Set("X-Backend-Path", req.URL.Path)
+				responseWriter.WriteHeader(http.StatusOK)
 			}))
 			defer backendServer.Close()
 
@@ -176,12 +176,12 @@ func Test_PathJoining(t *testing.T) {
 					proxy := reverseProxy.NewReverseProxy(targetURL)
 
 					req := httptest.NewRequest("GET", "http://frontend.com"+testCase.requestPath, nil)
-					w := httptest.NewRecorder()
+					responseRecorder := httptest.NewRecorder()
 
-					proxy.ServeHTTP(w, req)
+					proxy.ServeHTTP(responseRecorder, req)
 
-					So(w.Code, ShouldEqual, http.StatusOK)
-					So(w.Header().Get("X-Backend-Path"), ShouldEqual, testCase.expectedPath)
+					So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+					So(responseRecorder.Header().Get("X-Backend-Path"), ShouldEqual, testCase.expectedPath)
 				})
 			}
 		})

@@ -8,7 +8,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// NewZeroLogger returns a new zerolog.Logger set up based on the release stage
 func NewZeroLogger(config *server_config.Config) zerolog.Logger {
 	logger := setLogLevel(
 		zerolog.New(os.Stdout).

@@ -1,11 +1,10 @@
 package auth0_test
 
 import (
+	_ "embed"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	_ "embed"
 
 	auth0_config "github.com/greencoda/auth0-api-gateway/internal/config/auth0"
 	middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/auth0"
@@ -58,16 +57,16 @@ func Test_Auth0TokenValidator_Interface(t *testing.T) {
 			So(handler, ShouldNotBeNil)
 
 			Convey("Should return a valid middleware function", func() {
-				testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte("success"))
+				testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+					responseWriter.WriteHeader(http.StatusOK)
+					_, _ = responseWriter.Write([]byte("success"))
 				})
 
 				wrappedHandler := handler(testHandler)
 
 				Convey("When a request has a valid JWT", func() {
 					req := httptest.NewRequest("GET", "/test", nil)
-					req.Header.Set("authorization", "Bearer "+validJWTToken)
+					req.Header.Set("Authorization", "Bearer "+validJWTToken)
 
 					recorder := httptest.NewRecorder()
 

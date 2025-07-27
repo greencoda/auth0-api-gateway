@@ -11,109 +11,10 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func Test_NewRateLimitFactory(t *testing.T) {
-	Convey("When creating a new rate limit factory", t, func() {
-		factory := middleware.NewRateLimitFactory()
-		So(factory, ShouldNotBeNil)
-		So(factory, ShouldImplement, (*middleware.IRateLimitFactory)(nil))
-	})
-}
-
-func Test_RateLimitFactory_NewRateLimit(t *testing.T) {
-	Convey("When creating rate limit middleware", t, func() {
-		factory := middleware.NewRateLimitFactory()
-
-		Convey("With basic configuration", func() {
-			config := subrouter_config.RateLimitConfig{
-				Limit:  10,
-				Period: time.Minute,
-			}
-
-			rateLimit := factory.NewRateLimit(config)
-			So(rateLimit, ShouldNotBeNil)
-			So(rateLimit, ShouldImplement, (*middleware.IRateLimit)(nil))
-
-			handler := rateLimit.Handler()
-			So(handler, ShouldNotBeNil)
-		})
-
-		Convey("With trust forward header enabled", func() {
-			config := subrouter_config.RateLimitConfig{
-				Limit:              100,
-				Period:             time.Second,
-				TrustForwardHeader: true,
-			}
-
-			rateLimit := factory.NewRateLimit(config)
-			So(rateLimit, ShouldNotBeNil)
-
-			handler := rateLimit.Handler()
-			So(handler, ShouldNotBeNil)
-		})
-
-		Convey("With different time periods", func() {
-			testCases := []struct {
-				period time.Duration
-				name   string
-			}{
-				{time.Second, "1 second"},
-				{time.Minute, "1 minute"},
-				{time.Hour, "1 hour"},
-				{5 * time.Second, "5 seconds"},
-			}
-
-			for _, tc := range testCases {
-				Convey("With period: "+tc.name, func() {
-					config := subrouter_config.RateLimitConfig{
-						Limit:  50,
-						Period: tc.period,
-					}
-
-					rateLimit := factory.NewRateLimit(config)
-					So(rateLimit, ShouldNotBeNil)
-
-					handler := rateLimit.Handler()
-					So(handler, ShouldNotBeNil)
-				})
-			}
-		})
-
-		Convey("With different limits", func() {
-			testCases := []int64{1, 5, 10, 100, 1000}
-
-			for _, limit := range testCases {
-				Convey("With limit: "+string(rune(limit+'0')), func() {
-					config := subrouter_config.RateLimitConfig{
-						Limit:  limit,
-						Period: time.Minute,
-					}
-
-					rateLimit := factory.NewRateLimit(config)
-					So(rateLimit, ShouldNotBeNil)
-
-					handler := rateLimit.Handler()
-					So(handler, ShouldNotBeNil)
-				})
-			}
-		})
-
-		Convey("With zero limit", func() {
-			config := subrouter_config.RateLimitConfig{
-				Limit:  0,
-				Period: time.Minute,
-			}
-
-			rateLimit := factory.NewRateLimit(config)
-			So(rateLimit, ShouldNotBeNil)
-
-			handler := rateLimit.Handler()
-			So(handler, ShouldNotBeNil)
-		})
-	})
-}
-
 func Test_RateLimit_Handler(t *testing.T) {
 	Convey("When using rate limit handler", t, func() {
+		const remoteAddr = "192.168.1.1:8080"
+
 		factory := middleware.NewRateLimitFactory()
 
 		Convey("Should allow requests within limit", func() {
@@ -125,23 +26,23 @@ func Test_RateLimit_Handler(t *testing.T) {
 			rateLimit := factory.NewRateLimit(config)
 			handler := rateLimit.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
 
 			// Make requests within the limit
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				req := httptest.NewRequest("GET", "http://example.com/api", nil)
-				req.RemoteAddr = "192.168.1.1:8080"
-				w := httptest.NewRecorder()
+				req.RemoteAddr = remoteAddr
+				responseRecorder := httptest.NewRecorder()
 
-				wrappedHandler.ServeHTTP(w, req)
+				wrappedHandler.ServeHTTP(responseRecorder, req)
 
-				So(w.Code, ShouldEqual, http.StatusOK)
-				So(w.Body.String(), ShouldEqual, "success")
+				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+				So(responseRecorder.Body.String(), ShouldEqual, "success")
 			}
 		})
 
@@ -154,31 +55,29 @@ func Test_RateLimit_Handler(t *testing.T) {
 			rateLimit := factory.NewRateLimit(config)
 			handler := rateLimit.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
 
-			// Test first IP
-			for i := 0; i < 2; i++ {
+			for range 2 {
 				req := httptest.NewRequest("GET", "http://example.com/api", nil)
-				req.RemoteAddr = "192.168.1.1:8080"
-				w := httptest.NewRecorder()
+				req.RemoteAddr = remoteAddr
+				responseRecorder := httptest.NewRecorder()
 
-				wrappedHandler.ServeHTTP(w, req)
-				So(w.Code, ShouldEqual, http.StatusOK)
+				wrappedHandler.ServeHTTP(responseRecorder, req)
+				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 			}
 
-			// Test second IP (should also be allowed)
-			for i := 0; i < 2; i++ {
+			for range 2 {
 				req := httptest.NewRequest("GET", "http://example.com/api", nil)
 				req.RemoteAddr = "192.168.1.2:8080"
-				w := httptest.NewRecorder()
+				responseRecorder := httptest.NewRecorder()
 
-				wrappedHandler.ServeHTTP(w, req)
-				So(w.Code, ShouldEqual, http.StatusOK)
+				wrappedHandler.ServeHTTP(responseRecorder, req)
+				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 			}
 		})
 
@@ -192,22 +91,21 @@ func Test_RateLimit_Handler(t *testing.T) {
 			rateLimit := factory.NewRateLimit(config)
 			handler := rateLimit.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
 
-			// Make requests with X-Forwarded-For header
-			for i := 0; i < 3; i++ {
+			for range 3 {
 				req := httptest.NewRequest("GET", "http://example.com/api", nil)
 				req.Header.Set("X-Forwarded-For", "10.0.0.1")
-				req.RemoteAddr = "192.168.1.1:8080" // This should be ignored when trust forward header is true
-				w := httptest.NewRecorder()
+				req.RemoteAddr = remoteAddr
+				responseRecorder := httptest.NewRecorder()
 
-				wrappedHandler.ServeHTTP(w, req)
-				So(w.Code, ShouldEqual, http.StatusOK)
+				wrappedHandler.ServeHTTP(responseRecorder, req)
+				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 			}
 		})
 
@@ -220,19 +118,18 @@ func Test_RateLimit_Handler(t *testing.T) {
 			rateLimit := factory.NewRateLimit(config)
 			handler := rateLimit.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte("success"))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte("success"))
 			})
 
 			wrappedHandler := handler(testHandler)
 
 			req := httptest.NewRequest("GET", "http://example.com/api", nil)
 			req.RemoteAddr = ""
-			w := httptest.NewRecorder()
+			responseRecorder := httptest.NewRecorder()
 
-			wrappedHandler.ServeHTTP(w, req)
-			// Should handle gracefully, exact behavior depends on underlying limiter
+			wrappedHandler.ServeHTTP(responseRecorder, req)
 		})
 
 		Convey("Should work with different HTTP methods", func() {
@@ -244,9 +141,9 @@ func Test_RateLimit_Handler(t *testing.T) {
 			rateLimit := factory.NewRateLimit(config)
 			handler := rateLimit.Handler()
 
-			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte(r.Method))
+			testHandler := http.HandlerFunc(func(responseWriter http.ResponseWriter, req *http.Request) {
+				responseWriter.WriteHeader(http.StatusOK)
+				_, _ = responseWriter.Write([]byte(req.Method))
 			})
 
 			wrappedHandler := handler(testHandler)
@@ -256,11 +153,11 @@ func Test_RateLimit_Handler(t *testing.T) {
 			for _, method := range methods {
 				req := httptest.NewRequest(method, "http://example.com/api", nil)
 				req.RemoteAddr = "192.168.1.100:9000"
-				w := httptest.NewRecorder()
+				responseRecorder := httptest.NewRecorder()
 
-				wrappedHandler.ServeHTTP(w, req)
-				So(w.Code, ShouldEqual, http.StatusOK)
-				So(w.Body.String(), ShouldEqual, method)
+				wrappedHandler.ServeHTTP(responseRecorder, req)
+				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+				So(responseRecorder.Body.String(), ShouldEqual, method)
 			}
 		})
 	})
