@@ -2,7 +2,7 @@
 .SILENT: swag test test-100 test-cover
 
 BINARY_NAME=auth0-api-gateway
-TEST_PACKAGES=$(shell go list ./... | grep -v '/mocks/\|/tools/\|/cmd\|/module')
+TESTABLE_PACKAGES=$(shell go list ./... | grep -v '/mocks/\|/tools/\|/cmd\|/module')
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o bin/$(BINARY_NAME) cmd/main.go 
@@ -31,10 +31,10 @@ run:
 	go run cmd/main.go
 
 test:
-	go test ${TEST_PACKAGES} -cover -count=1
+	go test ${TESTABLE_PACKAGES} -cover -count=1 -cover -coverprofile=coverage.out
 
 test-100:
-	go test ${TEST_PACKAGES} -cover -count=100
+	go test ${TESTABLE_PACKAGES} -cover -count=100
 	
 test-cover:
-	go test ${TEST_PACKAGES} -cover -coverprofile=coverage.out && go tool cover -html=coverage.out
+	go test ${TESTABLE_PACKAGES} -cover -coverprofile=coverage.out && go tool cover -html=coverage.out
