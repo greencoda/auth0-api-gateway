@@ -21,12 +21,6 @@
 - **Docker Support**: Ready-to-use Docker container
 - **Dependency Injection**: Clean architecture using Uber FX
 
-## Install
-
-```bash
-go get -u github.com/greencoda/auth0-api-gateway
-```
-
 ## Quick Start
 
 ### 1. Create Configuration
