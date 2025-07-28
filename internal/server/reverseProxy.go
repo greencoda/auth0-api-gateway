@@ -12,9 +12,9 @@ import (
 	server_config "github.com/greencoda/auth0-api-gateway/internal/config/server"
 	subrouter_config "github.com/greencoda/auth0-api-gateway/internal/config/subrouter"
 	auth0_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/auth0"
-	callLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/callLogger"
 	cors_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/cors"
 	rateLimit_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/rateLimit"
+	requestLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/requestLogger"
 	reverseProxy_util "github.com/greencoda/auth0-api-gateway/internal/util/reverseProxy"
 	"github.com/rs/zerolog"
 	"go.uber.org/fx"
@@ -32,9 +32,9 @@ type ReverseProxyHandlerParams struct {
 	SubrouterConfigs *subrouter_config.Config
 
 	Auth0MiddlewareFactory     auth0_middleware.IAuth0ValidatorFactory
-	CallLogMiddleware          callLogger_middleware.ICallLogger
 	CORSMiddlewareFactory      cors_middleware.ICORSFactory
 	RateLimitMiddlewareFactory rateLimit_middleware.IRateLimitFactory
+	RequestLoggerMiddleware    requestLogger_middleware.IRequestLogger
 
 	Logger zerolog.Logger
 }
@@ -42,9 +42,9 @@ type ReverseProxyHandlerParams struct {
 func NewReverseProxyHandler(params ReverseProxyHandlerParams) (IReverseProxyHandler, error) {
 	router := mux.NewRouter()
 
-	if params.ServerConfig.LogCalls {
-		router.Use(params.CallLogMiddleware.Handler)
-		params.Logger.Print("Logging API calls is enabled")
+	if params.ServerConfig.LogRequests {
+		router.Use(params.RequestLoggerMiddleware.Handler)
+		params.Logger.Info().Msg("Request logging enabled")
 	}
 
 	auth0TokenValidatorMiddleware, err := params.Auth0MiddlewareFactory.NewAuth0TokenValidator(*params.Auth0Config)
@@ -98,7 +98,7 @@ func NewReverseProxyHandler(params ReverseProxyHandlerParams) (IReverseProxyHand
 			subRouterHandler,
 		)
 
-		params.Logger.Printf("API router for '%s' setup complete on path prefix: %s", subrouterConfig.Name, subrouterConfig.Prefix)
+		params.Logger.Info().Msgf("Subrouter '%s' (%s) set up with target URL: %s", subrouterConfig.Name, subrouterConfig.Prefix, subrouterConfig.TargetURL)
 	}
 
 	return router, nil

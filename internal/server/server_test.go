@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	mock_auth0_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/auth0"
-	mock_callLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/callLogger"
 	mock_cors_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/cors"
 	mock_rateLimit_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/rateLimit"
+	mock_requestLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/requestLogger"
 	"github.com/greencoda/auth0-api-gateway/internal/server"
 	"github.com/rs/zerolog"
 	. "github.com/smartystreets/goconvey/convey"
@@ -25,7 +25,7 @@ func Test_NewServer(t *testing.T) {
 			mockICORS                 mock_cors_middleware.ICORS
 			mockRateLimitFactory      mock_rateLimit_middleware.IRateLimitFactory
 			mockRateLimit             mock_rateLimit_middleware.IRateLimit
-			mockCallLogger            mock_callLogger_middleware.ICallLogger
+			mockRequestLogger         mock_requestLogger_middleware.IRequestLogger
 		)
 
 		Convey("With fully valid config", func() {
@@ -48,7 +48,7 @@ func Test_NewServer(t *testing.T) {
 						Auth0MiddlewareFactory:     &mockAuth0ValidatorFactory,
 						CORSMiddlewareFactory:      &mockCORSFactory,
 						RateLimitMiddlewareFactory: &mockRateLimitFactory,
-						CallLogMiddleware:          &mockCallLogger,
+						RequestLoggerMiddleware:    &mockRequestLogger,
 						Logger:                     testLogger,
 					},
 				)

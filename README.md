@@ -1,11 +1,11 @@
 # auth0-api-gateway
 
-[![godoc for greencoda/auth0-api-gateway](https://pkg.go.dev/badge/github.com/greencoda/auth0-api-gateway)](https://pkg.go.dev/github.com/greencoda/auth0-api-gateway)
-[![Go](https://img.shields.io/badge/Go-1.24-blue)](https://golang.org/doc/go1.24)
-[![Build Status](https://github.com/greencoda/auth0-api-gateway/actions/workflows/test.yml/badge.svg)](https://github.com/greencoda/auth0-api-gateway/actions/workflows/test.yml)
-[![Go Coverage](https://raw.githack.com/wiki/greencoda/auth0-api-gateway/coverage.html)](https://raw.githack.com/wiki/greencoda/auth0-api-gateway/coverage.html)
-[![Go Report Card](https://goreportcard.com/badge/github.com/greencoda/auth0-api-gateway)](https://goreportcard.com/report/github.com/greencoda/auth0-api-gateway)
-[![Docker Hub](https://img.shields.io/docker/pulls/greencoda/auth0-api-gateway)](https://hub.docker.com/r/greencoda/auth0-api-gateway)
+[![godoc for greencoda/confiq][godoc-badge]][godoc-url]
+[![Go 1.22][goversion-badge]][goversion-url]
+[![Build Status][actions-badge]][actions-url]
+[![Go Coverage][gocoverage-badge]][gocoverage-url]
+[![Go Report card][goreportcard-badge]][goreportcard-url]
+[![Docker Hub][dockerhub-badge]][dockerhub-url]
 
 `auth0-api-gateway` is a configurable reverse proxy API Gateway with Auth0 JWT authentication, built in Go. It provides a flexible way to route requests to multiple backend services while enforcing authentication and authorization policies through Auth0 scopes.
 
@@ -16,9 +16,8 @@
 - **Reverse Proxy**: Route requests to multiple backend services
 - **CORS Support**: Configurable CORS policies per route
 - **Rate Limiting**: Built-in rate limiting capabilities
-- **Request Logging**: Comprehensive request/response logging
-- **Configuration-driven**: YAML-based configuration with live reload
-- **Health Checks**: Built-in health monitoring
+- **Request Logging**: Basic request logging
+- **Configuration-driven**: YAML-based configuration
 - **Docker Support**: Ready-to-use Docker container
 - **Dependency Injection**: Clean architecture using Uber FX
 
@@ -45,26 +44,26 @@ server:
   writeTimeout: "15s"
   idleTimeout: "15s"
   maxHeaderBytes: 1048576
-  logCalls: true
   releaseStage: "development"
+  logRequests: true
   logLevel: "info"
 
 subrouters:
-  - target_url: http://localhost:3001/api
+  - targetUrl: http://localhost:3001/api
     prefix: "/api/v1"
-    strip_prefix: true
+    stripPrefix: true
     name: "API Service"
-    authorization_config:
-      required_scopes:
+    authorizationConfig:
+      requiredScopes:
         - "read:api"
         - "write:api"
     auth: true
     gzip: true
     cors:
-      allow_credentials: true
-      allowed_origins:
+      allowCredentials: true
+      allowedOrigins:
         - "https://yourdomain.com"
-      allowed_headers:
+      allowedHeaders:
         - "Authorization"
         - "Content-Type"
 ```
@@ -72,14 +71,22 @@ subrouters:
 ### 2. Run the Gateway
 
 ```bash
-# Using Go directly
+# Using Go directly (default config.yaml)
 go run cmd/main.go
+
+# Using Go with custom config file
+go run cmd/main.go -c /path/to/custom-config.yaml
 
 # Or using Make
 make run
 
 # Or using Docker Hub image (recommended)
 docker run -p 8080:80 -v $(pwd)/config.yaml:/config.yaml greencoda/auth0-api-gateway:latest
+
+# Docker with custom config file
+docker run -p 8080:80 \
+  -v /path/to/custom-config.yaml:/custom.yaml \
+  greencoda/auth0-api-gateway:latest -c /custom.yaml
 
 # Or build locally
 docker build -f docker/Dockerfile -t auth0-api-gateway .
@@ -104,6 +111,45 @@ curl -H "Authorization: Bearer $TOKEN" \
      http://localhost:8080/api/v1/your-endpoint
 ```
 
+## Command Line Options
+
+The gateway supports the following command-line options:
+
+### `-c` Config File Path
+
+Specify a custom configuration file path:
+
+```bash
+# Use default config.yaml
+go run cmd/main.go
+
+# Use custom config file
+go run cmd/main.go -c /path/to/custom-config.yaml
+go run cmd/main.go -c config-production.yaml
+
+# Get help
+go run cmd/main.go -h
+```
+
+This is particularly useful for:
+- **Environment-specific configurations**: Use different config files for development, staging, and production
+- **Testing**: Quickly switch between different configuration setups
+- **Deployment**: Specify config file paths that match your deployment structure
+
+### Docker Usage with Custom Config
+
+```bash
+# Mount and specify custom config file
+docker run -p 8080:80 \
+  -v /host/path/to/custom.yaml:/app/custom.yaml \
+  greencoda/auth0-api-gateway:latest -c /app/custom.yaml
+
+# Using environment-specific configs
+docker run -p 8080:80 \
+  -v ./configs/production.yaml:/config/production.yaml \
+  greencoda/auth0-api-gateway:latest -c /config/production.yaml
+```
+
 ## Configuration
 
 The gateway is configured using a YAML file. Here's a comprehensive example:
@@ -125,9 +171,9 @@ server:
   writeTimeout: "15s"        # Maximum duration for writing responses
   idleTimeout: "15s"         # Maximum duration for idle connections
   maxHeaderBytes: 1048576    # Maximum size of request headers
-  logCalls: true            # Enable request/response logging
   releaseStage: "production" # Environment stage (local, development, staging, production)
-  logLevel: "info"          # Log level (trace, debug, info, warn, error, fatal, panic)
+  logRequests: true             # Enable request/response logging
+  logLevel: "info"           # Log level (trace, debug, info, warn, error, fatal, panic)
 ```
 
 ### Subrouter Configuration
@@ -136,34 +182,34 @@ Each subrouter defines a route to a backend service:
 
 ```yaml
 subrouters:
-  - target_url: http://backend-service:3000    # Backend service URL
-    prefix: "/api/users"                       # Route prefix
-    strip_prefix: true                         # Remove prefix before forwarding
-    name: "User Service"                       # Descriptive name
-    authorization_config:
-      required_scopes:                         # Required Auth0 scopes
+  - targetUrl: http://backend-service:3000    # Backend service URL
+    prefix: "/api/users"                      # Route prefix
+    stripPrefix: true                         # Remove prefix before forwarding
+    name: "User Service"                      # Descriptive name
+    authorizationConfig:
+      requiredScopes:                         # Required Auth0 scopes
         - "read:users"
         - "write:users"
-    auth: true                                 # Enable authentication
-    gzip: true                                 # Enable gzip compression
-    rate_limit:                                # Optional rate limiting
+    auth: true                                # Enable authentication
+    gzip: true                                # Enable gzip compression
+    rateLimit:                                # Optional rate limiting
       period: "1m"
       limit: 100
-    cors:                                      # CORS configuration
-      allow_credentials: true
-      allowed_origins:
+    cors:                                     # CORS configuration
+      allowCredentials: true
+      allowedOrigins:
         - "https://yourdomain.com"
         - "https://admin.yourdomain.com"
-      allowed_headers:
+      allowedHeaders:
         - "Authorization"
         - "Content-Type"
         - "X-Requested-With"
-      allowed_methods:
+      allowedMethods:
         - "GET"
         - "POST"
         - "PUT"
         - "DELETE"
-      max_age: 86400
+      maxAge: 86400
 ```
 
 ## Architecture
@@ -200,9 +246,8 @@ internal/
 The gateway includes several built-in middleware components:
 
 ### Auth0 Middleware
-- JWT token validation
+- JWT token validationRe
 - Scope-based authorization
-- Automatic token refresh handling
 - Comprehensive error responses
 
 ### CORS Middleware
@@ -213,14 +258,9 @@ The gateway includes several built-in middleware components:
 ### Rate Limiting Middleware
 - Token bucket algorithm
 - Configurable limits per route
-- Redis support for distributed rate limiting
 
 ### Call Logger Middleware
-- Structured request/response logging
-- Performance metrics
-- Error tracking
-
-## Development
+- Structured request logging
 
 ### Prerequisites
 
@@ -258,16 +298,13 @@ The project includes comprehensive tests with mocking:
 # Run all tests
 make test
 
-# Run tests 100 times (for race condition detection)
-make test-100
-
-# Generate coverage report
+# Run all tests and view the coverage report
 make test-cover
 ```
 
 ## Docker
 
-The Docker image is automatically built and published to Docker Hub on every release and push to master.
+The Docker image is automatically built and published to Docker Hub on every release.
 
 ### Using Pre-built Image
 
@@ -279,6 +316,11 @@ docker pull greencoda/auth0-api-gateway:latest
 docker run -p 8080:80 \
   -v $(pwd)/config.yaml:/config.yaml \
   greencoda/auth0-api-gateway:latest
+
+# Run with custom config file path
+docker run -p 8080:80 \
+  -v /path/to/custom-config.yaml:/custom.yaml \
+  greencoda/auth0-api-gateway:latest -c /custom.yaml
 
 # Run with environment-specific config
 docker run -p 8080:80 \
@@ -297,10 +339,15 @@ docker run -p 8080:80 \
 # Build the image locally
 docker build -f docker/Dockerfile -t auth0-api-gateway .
 
-# Run locally built image
+# Run locally built image (default config)
 docker run -p 8080:80 \
   -v $(pwd)/config.yaml:/config.yaml \
   auth0-api-gateway
+
+# Run with custom config file
+docker run -p 8080:80 \
+  -v /path/to/custom.yaml:/custom.yaml \
+  auth0-api-gateway -c /custom.yaml
 ```
 
 ### Available Tags
@@ -317,12 +364,12 @@ Route all `/api/*` requests to a backend service with Auth0 authentication:
 
 ```yaml
 subrouters:
-  - target_url: http://api-backend:3000
+  - targetUrl: http://api-backend:3000
     prefix: "/api"
-    strip_prefix: true
+    stripPrefix: true
     name: "Main API"
-    authorization_config:
-      required_scopes: ["api:access"]
+    authorizationConfig:
+      requiredScopes: ["api:access"]
     auth: true
 ```
 
@@ -332,21 +379,21 @@ Route different prefixes to different services:
 
 ```yaml
 subrouters:
-  - target_url: http://user-service:3001
+  - targetUrl: http://user-service:3001
     prefix: "/users"
     name: "User Service"
-    authorization_config:
-      required_scopes: ["read:users"]
+    authorizationConfig:
+      requiredScopes: ["read:users"]
     auth: true
     
-  - target_url: http://order-service:3002
+  - targetUrl: http://order-service:3002
     prefix: "/orders"
     name: "Order Service"
-    authorization_config:
-      required_scopes: ["read:orders"]
+    authorizationConfig:
+      requiredScopes: ["read:orders"]
     auth: true
     
-  - target_url: http://public-api:3003
+  - targetUrl: http://public-api:3003
     prefix: "/public"
     name: "Public API"
     auth: false  # No authentication required
@@ -356,10 +403,10 @@ subrouters:
 
 ```yaml
 subrouters:
-  - target_url: http://heavy-service:3000
+  - targetUrl: http://heavy-service:3000
     prefix: "/heavy"
     name: "Heavy Processing Service"
-    rate_limit:
+    rateLimit:
       period: "1m"
       limit: 10  # 10 requests per minute
     auth: true
@@ -382,3 +429,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For support and questions:
 
 - Create an [issue](https://github.com/greencoda/auth0-api-gateway/issues)
+
+[godoc-badge]: https://pkg.go.dev/badge/github.com/greencoda/auth0-api-gateway
+[godoc-url]: https://pkg.go.dev/github.com/greencoda/auth0-api-gateway
+[actions-badge]: https://github.com/greencoda/auth0-api-gateway/actions/workflows/main.yml/badge.svg
+[actions-url]: https://github.com/greencoda/auth0-api-gateway/actions/workflows/main.yml
+[goversion-badge]: https://img.shields.io/badge/Go-1.24-%2300ADD8?logo=go
+[goversion-url]: https://golang.org/doc/go1.24
+[goreportcard-badge]: https://goreportcard.com/badge/github.com/greencoda/auth0-api-gateway
+[goreportcard-url]: https://goreportcard.com/report/github.com/greencoda/auth0-api-gateway
+[gocoverage-badge]: https://github.com/greencoda/auth0-api-gateway/wiki/coverage.svg
+[gocoverage-url]: https://raw.githack.com/wiki/greencoda/auth0-api-gateway/coverage.html
+[dockerhub-badge]: https://img.shields.io/docker/pulls/greencoda/auth0-api-gateway
+[dockerhub-url]: https://hub.docker.com/r/greencoda/auth0-api-gateway

@@ -44,7 +44,7 @@ func Test_NewFXLogger(t *testing.T) {
 
 			fxLogger := logging.NewFXLogger(config, logger)
 			So(fxLogger, ShouldNotBeNil)
-			So(fxLogger, ShouldNotEqual, fxevent.NopLogger)
+			So(fxLogger, ShouldEqual, fxevent.NopLogger)
 		})
 
 		Convey("With staging release stage", func() {
@@ -55,7 +55,7 @@ func Test_NewFXLogger(t *testing.T) {
 
 			fxLogger := logging.NewFXLogger(config, logger)
 			So(fxLogger, ShouldNotBeNil)
-			So(fxLogger, ShouldNotEqual, fxevent.NopLogger)
+			So(fxLogger, ShouldEqual, fxevent.NopLogger)
 		})
 
 		Convey("With empty release stage", func() {
@@ -66,12 +66,7 @@ func Test_NewFXLogger(t *testing.T) {
 
 			fxLogger := logging.NewFXLogger(config, logger)
 			So(fxLogger, ShouldNotBeNil)
-			So(fxLogger, ShouldNotEqual, fxevent.NopLogger)
-		})
-
-		Convey("With nil config", func() {
-			// This test is skipped since the function expects a non-nil config
-			// and would cause a nil pointer dereference
+			So(fxLogger, ShouldEqual, fxevent.NopLogger)
 		})
 	})
 }

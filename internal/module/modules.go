@@ -5,16 +5,14 @@ import (
 	server_config "github.com/greencoda/auth0-api-gateway/internal/config/server"
 	subrouter_config "github.com/greencoda/auth0-api-gateway/internal/config/subrouter"
 	auth0_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/auth0"
-	callLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/callLogger"
 	cors_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/cors"
 	rateLimit_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/rateLimit"
+	requestLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/middleware/requestLogger"
 	"github.com/greencoda/auth0-api-gateway/internal/server"
 	config_util "github.com/greencoda/auth0-api-gateway/internal/util/config"
 	logging_util "github.com/greencoda/auth0-api-gateway/internal/util/logging"
 	"go.uber.org/fx"
 )
-
-const apiConfigFilename = "config.yaml"
 
 var apiConfigModule = fx.Module(
 	"config",
@@ -27,10 +25,10 @@ var apiConfigModule = fx.Module(
 )
 
 var logicModule = fx.Module(
-	"business",
+	"logic",
 	fx.Provide(
+		requestLogger_middleware.NewMiddleware,
 		auth0_middleware.NewAuth0ValidatorFactory,
-		callLogger_middleware.NewCallLogger,
 		cors_middleware.NewCORSFactory,
 		rateLimit_middleware.NewRateLimitFactory,
 		server.NewReverseProxyHandler,
@@ -45,15 +43,18 @@ var observabilityModule = fx.Module(
 	),
 )
 
-var ServerModule = fx.New(
-	fx.Supply(
-		config_util.ConfigFilename(apiConfigFilename),
-	),
-	apiConfigModule,
-	fx.WithLogger(
-		logging_util.NewFXLogger,
-	),
-	logicModule,
-	observabilityModule,
-	fx.Invoke(Launcher),
-)
+// NewServerModule creates a new server module with the specified config filename
+func NewServerModule(configFilename string) *fx.App {
+	return fx.New(
+		fx.Supply(
+			config_util.ConfigFilename(configFilename),
+		),
+		apiConfigModule,
+		fx.WithLogger(
+			logging_util.NewFXLogger,
+		),
+		logicModule,
+		observabilityModule,
+		fx.Invoke(Launcher),
+	)
+}

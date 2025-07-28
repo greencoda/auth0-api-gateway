@@ -1,4 +1,4 @@
 subrouters:
   - name: "Minimal API"
-    targetURL: "http://localhost:8080"
+    targetUrl: "http://localhost:8080"
     prefix: "/minimal"
