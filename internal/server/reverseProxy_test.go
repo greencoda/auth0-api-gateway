@@ -1,6 +1,7 @@
 package server_test
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 	"time"
@@ -14,7 +15,6 @@ import (
 	mock_rateLimit_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/rateLimit"
 	mock_requestLogger_middleware "github.com/greencoda/auth0-api-gateway/internal/mocks/middleware/requestLogger"
 	"github.com/greencoda/auth0-api-gateway/internal/server"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	. "github.com/smartystreets/goconvey/convey"
 )

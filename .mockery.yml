@@ -1,0 +1,40 @@
+filename: "{{.InterfaceName}}.go"
+structname: "{{.InterfaceName}}"
+packages:
+  github.com/greencoda/auth0-api-gateway/internal/middleware/auth0:
+    interfaces:
+      IAuth0TokenValidator:
+        config:
+          dir: './internal/mocks/middleware/auth0'
+      IAuth0ScopeValidator:
+        config:
+          dir: './internal/mocks/middleware/auth0'
+      IAuth0ValidatorFactory:
+        config:
+          dir: './internal/mocks/middleware/auth0'
+  github.com/greencoda/auth0-api-gateway/internal/middleware/cors:
+    interfaces:
+      ICORS:
+        config:
+          dir: './internal/mocks/middleware/cors'
+      ICORSFactory:
+        config:
+          dir: './internal/mocks/middleware/cors'
+  github.com/greencoda/auth0-api-gateway/internal/middleware/rateLimit:
+    interfaces:
+      IRateLimit:
+        config:
+          dir: './internal/mocks/middleware/rateLimit'
+      IRateLimitFactory:
+        config:
+          dir: './internal/mocks/middleware/rateLimit'
+  github.com/greencoda/auth0-api-gateway/internal/middleware/requestLogger:
+    interfaces:
+      IRequestLogger:
+        config:
+          dir: './internal/mocks/middleware/requestLogger'
+  github.com/greencoda/auth0-api-gateway/internal/server:
+    interfaces:
+      IReverseProxyHandler:
+        config:
+          dir: './internal/mocks/server'

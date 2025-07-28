@@ -25,7 +25,7 @@ lint: deps
 
 mock:
 	rm -rf internal/mocks/*
-	mockery --all --dir=internal --output=internal/mocks --keeptree
+	mockery
 
 run:
 	go run cmd/main.go
