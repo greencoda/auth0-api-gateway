@@ -21,7 +21,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.24.4
+        go-version: 1.24.5
         check-latest: true
 
     - name: Lint
@@ -37,7 +37,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.24.4
+        go-version: 1.24.5
         check-latest: true
 
     - name: Build
@@ -51,7 +51,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.24.4
+        go-version: 1.24.5
         check-latest: true
         
     - name: Setup Dependencies

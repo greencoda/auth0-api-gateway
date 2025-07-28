@@ -76,7 +76,7 @@ var (
 		})
 	}
 
-	testError = errors.New("test error")
+	errTest = errors.New("test error")
 )
 
 func Test_NewReverseProxyHandler(t *testing.T) {
@@ -95,7 +95,7 @@ func Test_NewReverseProxyHandler(t *testing.T) {
 
 		Convey("With fully valid config", func() {
 			Convey("When Auth0 Token validator cannot be set up", func() {
-				mockAuth0ValidatorFactory.On("NewAuth0TokenValidator", validAuth0Config).Return(nil, testError)
+				mockAuth0ValidatorFactory.On("NewAuth0TokenValidator", validAuth0Config).Return(nil, errTest)
 
 				reverseProxyHandler, err := server.NewReverseProxyHandler(
 					server.ReverseProxyHandlerParams{
